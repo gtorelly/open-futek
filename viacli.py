@@ -237,6 +237,7 @@ if __name__ == '__main__':
     # GetSingleData()
     # GetDeviceInfo()
     GetDataLog()
+    # Testing
 
 """
 List of commands available for the IHH500
