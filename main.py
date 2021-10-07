@@ -1,13 +1,12 @@
-# This script uses the FUTEK USB DLL Api
-# used to parse files more easily
-# from __future__ import with_statement
+"""
+This script uses the FUTEK USB DLL Api, which is written in .NET, therefore the pythonnet module
+is required, and "import clr" is from pythonnet
+"""
 
 # Qt5
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QThread
-from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QSplashScreen, QWidget
-from PyQt5.QtWidgets import QAbstractItemView, QTableWidgetItem
+from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QWidget
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
 QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
 import numpy as np
@@ -19,7 +18,7 @@ import os
 import sys
 import time
 
-import core
+import core  # Module that contains the core functions
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -31,7 +30,7 @@ from matplotlib import rcParams
 rcParams.update({'figure.autolayout': True})
 
 # Loading the DLL from the same folder as the python script
-clr.AddReference('FUTEK_USB_DLL')
+clr.AddReference("FUTEK_USB_DLL")
 from FUTEK_USB_DLL import USB_DLL
 
 class MainWindow(QMainWindow):
@@ -43,12 +42,12 @@ class MainWindow(QMainWindow):
         Initialization of the main window
         """
         super(MainWindow, self).__init__(parent)
-        # Loads the ui]
+        # Loads the ui
         uic.loadUi(os.path.join(os.path.dirname(os.path.realpath(__file__)), 
                                 "torque_bench.ui"), self)
         self.ConnectSignals()
         self.CreatePlots()
-        self.CreateThreads()
+        # self.CreateThreads()
 
         # Creates a timer to update the information on the main screen
         self.data_display_timer = QTimer()
@@ -101,7 +100,28 @@ class MainWindow(QMainWindow):
         """
         Function that updates the data displayed on the data acquisition screen periodically.
         """
+        if not self.dev_connected:  # If there is no device connected, just put zeros and return
+            self.rpm_txt.setText("0")
+            self.torque_txt.setText("0")
+            self.deg_txt.setText("0")
+            self.kw_txt.setText("0")
+            self.pk_txt.setText("0")
+            self.track_txt.setText("0")
+            self.vly_txt.setText("0")
+            print("UpdateDataDisplay")
+            return
 
+        # In case there is a device connected, updates the interface
+        # Gets the rotation values (necessary to use the function AngleValue and RPMValue)
+        # self.usb.Get_Rotation_Values(self.ihh)
+        self.rpm_txt.setText(f"{self.usb.RPMValue:.4f}")
+        self.torque_txt.setText("0")
+        self.deg_txt.setText(f"{self.usb.AngleValue:.4f}")
+        self.kw_txt.setText("0")
+        self.pk_txt.setText("0")
+        self.track_txt.setText("0")
+        self.vly_txt.setText("0")
+        print("UpdateDataDisplay, after connection")
 
     def Connect(self):
         self.usb = USB_DLL()
