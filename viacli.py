@@ -3,7 +3,7 @@ This file is used to test the functionality of OpenFutek without the need for a 
 """
 
 # To deal with files, time, paths...
-# import numpy as np
+import numpy as np
 # import os
 # import sys
 import time
@@ -192,7 +192,9 @@ def GetDataLog():
     Function that saves the data acquired via Data Logging and plots a figure.
     """
     # Serial number of the IHH500  Elite
-    serial = "479586"
+    # serial = "479586"
+    # Serial number of the IHH500  Pro
+    serial = "482217"
     dev = Connect(serial)
     handle = dev.DeviceHandle
     channel = 2
@@ -201,21 +203,20 @@ def GetDataLog():
     data_logging_rate = 50  # Hz - This is the full logging data rate
     samples = seconds * data_logging_rate
 
+    adc_vals = []
+    tim_vals = []
 
-    counter = dev.DataLogging_Counter
-    print(f"counter: {counter}")
-    ret_data_log = dev.Get_Data_Logging(handle, 10)
-    counter = dev.DataLogging_Counter
-    print(f"counter: {counter}")
 
-    num_samples = dev.get_FastDataLoggingADCValue(handle)
-    print(f"Get_Data_Logging: {num_samples}")
-    return
     # Gets the data logging value stored in memory and assigns a value to the DataLogging_Counter, 
     # DataLogging_Value1 and DataLogging_Value2.
-    for counter in range(0, samples + 1):
-        ret_data_log = dev.Get_Data_Logging(handle, counter)
+    ret_data_log = dev.Get_Data_Logging(handle, counter)
+    if ret_data_log != 0:
+        print("There was a problem with the data logging request")
         print(f"Get_Data_Logging request response: {ret_data_log}")
+        return
+    valid_delta_t = True
+    while valid_delta_t:
+    # for counter in range(0, samples + 1):
         # Gets a value indicating the count associated with the sample number recorded during data 
         # logging. 
         counter = dev.DataLogging_Counter
@@ -223,12 +224,17 @@ def GetDataLog():
         # Gets a value indicating the analog-to-digital converter (ADC) value associated with the sample
         # number recorded during data logging.
         dl_v1 = dev.DataLogging_Value1
+        adc_vals.append(dl_v1)
         print(f"DataLogging_Value1: {dl_v1}")
         # Gets a value indicating the elapsed time in milliseconds associated with the sample number 
         # recorded during data logging. 
         dl_v2 = dev.DataLogging_Value2
+        tim_vals.append(dl_v2)
         print(f"DataLogging_Value2: {dl_v2}")
-    
+
+
+    cols = np.column_stack((tim_vals, adc_vals))
+    np.savetxt("data_output.dat", cols)
 
 
 
