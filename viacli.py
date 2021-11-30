@@ -215,6 +215,7 @@ def GetDataLog():
         print(f"Get_Data_Logging request response: {ret_data_log}")
         return
     valid_delta_t = True
+    # This while loop must check whether the time interval between two samples is valid
     while valid_delta_t:
     # for counter in range(0, samples + 1):
         # Gets a value indicating the count associated with the sample number recorded during data 
