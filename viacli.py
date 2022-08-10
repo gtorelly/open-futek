@@ -3,7 +3,7 @@ This file is used to test the functionality of OpenFutek without the need for a 
 """
 
 # To deal with files, time, paths...
-# import numpy as np
+import numpy as np
 # import os
 # import sys
 import time
@@ -192,43 +192,70 @@ def GetDataLog():
     Function that saves the data acquired via Data Logging and plots a figure.
     """
     # Serial number of the IHH500  Elite
-    serial = "479586"
+    # serial = "479586"
+    # Serial number of the IHH500  Pro
+    serial = "482217"
     dev = Connect(serial)
     handle = dev.DeviceHandle
     channel = 2
     # Measurement definitions
-    seconds = 10
+    seconds = 21
     data_logging_rate = 50  # Hz - This is the full logging data rate
     samples = seconds * data_logging_rate
 
+    cnt_vals = []
+    adc_vals = []
+    tim_vals = []
 
-    counter = dev.DataLogging_Counter
-    print(f"counter: {counter}")
-    ret_data_log = dev.Get_Data_Logging(handle, 10)
-    counter = dev.DataLogging_Counter
-    print(f"counter: {counter}")
 
-    num_samples = dev.get_FastDataLoggingADCValue(handle)
-    print(f"Get_Data_Logging: {num_samples}")
-    return
+    adc_offset = dev.Get_Offset_Value(handle, channel)
+    print(f'{adc_offset = }')
+    adc_maximum = dev.Get_Fullscale_Value(handle, channel)
+    print(f'{adc_maximum = }')
+    Get_ADC_PGA_Setting = dev.Get_ADC_PGA_Setting(handle, channel)
+    print(f'{Get_ADC_PGA_Setting = }')
+
     # Gets the data logging value stored in memory and assigns a value to the DataLogging_Counter, 
     # DataLogging_Value1 and DataLogging_Value2.
+
+    # ret_data_log = dev.Get_Data_Logging(handle, samples)
+    # if ret_data_log != 0:
+    #     print("There was a problem with the data logging request")
+    #     print(f"Get_Data_Logging request response: {ret_data_log}")
+    #     return
+    # valid_delta_t = True
+
+
+    # This while loop must check whether the time interval between two samples is valid
+    # while valid_delta_t:
     for counter in range(0, samples + 1):
-        ret_data_log = dev.Get_Data_Logging(handle, counter)
-        print(f"Get_Data_Logging request response: {ret_data_log}")
+        dev.Get_Data_Logging(handle, counter)
         # Gets a value indicating the count associated with the sample number recorded during data 
         # logging. 
         counter = dev.DataLogging_Counter
-        print(f"counter: {counter}")
-        # Gets a value indicating the analog-to-digital converter (ADC) value associated with the sample
-        # number recorded during data logging.
+        cnt_vals.append(counter)
+        # print(f"counter: {counter}")
+        # Gets a value indicating the analog-to-digital converter (ADC) value associated with the
+        # sample number recorded during data logging.
         dl_v1 = dev.DataLogging_Value1
-        print(f"DataLogging_Value1: {dl_v1}")
+        adc_vals.append(dl_v1)
+        # print(f"DataLogging_Value1: {dl_v1}")
         # Gets a value indicating the elapsed time in milliseconds associated with the sample number 
         # recorded during data logging. 
         dl_v2 = dev.DataLogging_Value2
         print(f"DataLogging_Value2: {dl_v2}")
+        tim_vals.append(dl_v2)
     
+
+
+    filename = "Test.dat"
+    cols = np.column_stack((cnt_vals, tim_vals, adc_vals))
+    format = ['%i', '%i', '%i']
+    header = f"Sample\tTime(ms)\tADC Count"
+    delimiter = "\t"
+    np.savetxt(filename, cols, fmt=format, header=header, delimiter=delimiter)
+
+
 def DA_convert(track_d_val, offset_d, fullscale_d, reverse_fullscale_d, fullscale_load_a):
     """
     Converts a digital value (or array) to a float value.
@@ -257,7 +284,6 @@ def DA_convert(track_d_val, offset_d, fullscale_d, reverse_fullscale_d, fullscal
     else:
         output = track_d / (reverse_fullscale_d - offset_d)
     return output
-
 
 if __name__ == '__main__':
     # ConnectDisconnect()
