@@ -229,7 +229,34 @@ def GetDataLog():
         dl_v2 = dev.DataLogging_Value2
         print(f"DataLogging_Value2: {dl_v2}")
     
+def DA_convert(track_d_val, offset_d, fullscale_d, reverse_fullscale_d, fullscale_load_a):
+    """
+    Converts a digital value (or array) to a float value.
+    variables with _d are digital, integer in the ADC range (16-bit usually)
+    variables with _a are analog, float.
+    Inputs: 
+    track_d_val: Measurement, named "Tracking ADC Value" by FUTEK's software. 
+                 Corresponds to the measured ADC value, integer.
+    offset_d: Offset of the ADC circuit, corresponds to the zero of analog range.
+    fullscale_d: ADC value corresponding to fullscale_load_a
+    reverse_fullscale_d: ADC value corresponding to a negative fullscale_load_a
+    fullscale_load_a: Calibrated limit of the measurement scale.
 
+    Output: Converted analog value in the same units as fullscale_load_a.
+
+    The conversion formula is:
+    output = fullscale_load_a * (track_d_val-offset_d) / (fs-offset_d)
+    where:
+        fs = fullscale_d if track_d_val-offset > 0
+        fs = reverse_fullscale_d if track_d_val-offset < 0
+    
+    """
+    track_d = fullscale_load_a * (track_d_val - offset_d)
+    if track_d > 0:
+        output = track_d / (fullscale_d - offset_d)
+    else:
+        output = track_d / (reverse_fullscale_d - offset_d)
+    return output
 
 
 if __name__ == '__main__':
