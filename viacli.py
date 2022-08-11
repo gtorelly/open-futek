@@ -1,21 +1,13 @@
 """
 This file is used to test the functionality of OpenFutek without the need for a GUI
 """
-
-# To deal with files, time, paths...
 import numpy as np
-# import os
-# import sys
 import time
 
+import clr  # From the pythonnet module
 # Loading the DLL from the same folder as the python script
-import clr
 clr.AddReference('FUTEK_USB_DLL')
-# clr.AddReference('Futek_USB_DLL_from_sensit.dll')
 from FUTEK_USB_DLL import USB_DLL
-# from Futek_USB_DLL_from_sensit import USB_DLL
-
-# file with the functions used to run this example
 
 def ConnectDisconnect():
     """
@@ -207,20 +199,27 @@ def GetDataLog():
     adc_vals = []
     tim_vals = []
 
-
-    offset_d = dev.Get_Offset_Value(handle, channel)
+    # These values may be obtained directly from these functions or from the
+    # Get_Internal_Register function
+    # offset_d = dev.Get_Offset_Value(handle, channel)
+    # print(f'{offset_d = }')
+    offset_d = int(dev.Get_Internal_Register(handle, '02'))
     print(f'{offset_d = }')
-    fullscale_d = dev.Get_Fullscale_Value(handle, channel)
+
+    # fullscale_d = dev.Get_Fullscale_Value(handle, channel)
+    # print(f'{fullscale_d = }')
+    fullscale_d = int(dev.Get_Internal_Register(handle, '03'))
     print(f'{fullscale_d = }')
-    # TODO Verify how to get the reverse full scale register
-    reverse_fullscale_d = dev.Get_Reverse_Fullscale_Value(handle, channel)
+
+    # There is no function to get the fullscale offset value directly
+    reverse_fullscale_d = int(dev.Get_Internal_Register(handle, '04'))
     print(f'{reverse_fullscale_d = }')
 
-    fullscale_load_a = dev.Get_Fullscale_Load(handle, channel)
+    # This value comes without the decimal point
+    fullscale_load_a = int(dev.Get_Internal_Register(handle, '05'))
     print(f'{fullscale_load_a = }')
-
-    Get_ADC_PGA_Setting = dev.Get_ADC_PGA_Setting(handle, channel)
-    print(f'{Get_ADC_PGA_Setting = }')
+    # fullscale_load_a = dev.Get_Fullscale_Load(handle)
+    # print(f'{fullscale_load_a = }')
 
     # Gets the data logging value stored in memory and assigns a value to the DataLogging_Counter, 
     # DataLogging_Value1 and DataLogging_Value2.
@@ -590,4 +589,8 @@ Class variables of the USB_DLL class obtained with "print(USB_DLL.__dict__)"
 'Write_Memory_Register': <method 'Write_Memory_Register'>
 'Write_TEDS_Channel_Register': <method 'Write_TEDS_Channel_Register'>
 'Write_TEDS_Register': <method 'Write_TEDS_Register'>
+"""
+
+"""
+
 """
