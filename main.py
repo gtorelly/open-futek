@@ -1,6 +1,6 @@
 """
-This script uses the FUTEK USB DLL Api, which is written in .NET, therefore the pythonnet module
-is required, and "import clr" is from pythonnet
+This script uses the FUTEK USB DLL Api, which is written in .NET, therefore the 
+pythonnet module is required, and "import clr" is from pythonnet
 """
 
 # Qt5
@@ -12,7 +12,7 @@ QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
 import numpy as np
 
 # To deal with files, time, paths...
-import clr
+from pythonnet import clr
 import os
 # import pickle
 import sys
