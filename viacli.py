@@ -5,9 +5,11 @@ import numpy as np
 import time
 
 import clr  # From the pythonnet module
+
 # Loading the DLL from the same folder as the python script
-clr.AddReference('FUTEK_USB_DLL')
+clr.AddReference("FUTEK_USB_DLL")
 from FUTEK_USB_DLL import USB_DLL
+
 
 def ConnectDisconnect():
     """
@@ -36,6 +38,7 @@ def ConnectDisconnect():
     status = usb.DeviceStatus
     print(f"ihh_status: {status}")
 
+
 def Connect(serial):
     """
     Connect and return the USB connection instance.
@@ -45,12 +48,14 @@ def Connect(serial):
     dev.Open_Device_Connection(serial)
     return dev
 
+
 def Disconnect(dev):
     """
     Disconnects the device, closing the USB connection
     """
     handle = dev.DeviceHandle
     dev.Close_Device_Connection(handle)
+
 
 def GetSingleData():
     """
@@ -76,9 +81,10 @@ def GetSingleData():
         time.sleep(0.1)
     Disconnect(dev)
 
+
 def GetDeviceInfo():
     """
-    Function written as a verifier just to check the information provided from various public 
+    Function written as a verifier just to check the information provided from various public
     methods the API defines.
     """
     # Serial number of the IHH500  Elite
@@ -113,31 +119,31 @@ def GetDeviceInfo():
     display_page = dev.Get_Display_Page(handle)
     print(f"Display Page: {display_page}")
 
-    # Gets the internal register value stored in the EEPROM of the microcontroller. 
+    # Gets the internal register value stored in the EEPROM of the microcontroller.
     # Not available on the IHH500
     # tgt_register = int(0x7A)
     # print(tgt_register)
     # internal_register = dev.Get_Internal_Register(handle, tgt_register)
     # print(f"Internal Register: {internal_register}")
 
-    # Gets the data logging value stored in memory and assigns a value to the DataLogging_Counter, 
+    # Gets the data logging value stored in memory and assigns a value to the DataLogging_Counter,
     # DataLogging_Value1 and DataLogging_Value2.
     counter = 2
     ret_data_log = dev.Get_Data_Logging(handle, counter)
     print(f"Get_Data_Logging request response: {ret_data_log}")
-    # Gets a value indicating the count associated with the sample number recorded during data 
-    # logging. 
+    # Gets a value indicating the count associated with the sample number recorded during data
+    # logging.
     counter = dev.DataLogging_Counter
     print(f"counter: {counter}")
     # Gets a value indicating the analog-to-digital converter (ADC) value associated with the sample
     # number recorded during data logging.
     dl_v1 = dev.DataLogging_Value1
     print(f"DataLogging_Value1: {dl_v1}")
-    # Gets a value indicating the elapsed time in milliseconds associated with the sample number 
-    # recorded during data logging. 
+    # Gets a value indicating the elapsed time in milliseconds associated with the sample number
+    # recorded during data logging.
     dl_v2 = dev.DataLogging_Value2
     print(f"DataLogging_Value2: {dl_v2}")
-    
+
     # This method is used to get the property "AngleValues"
     # TODO Test whether calling Get_Rotation_Values is necessary to get AngleValue
     ret_get_rot_val = dev.Get_Rotation_Values(handle)
@@ -145,16 +151,16 @@ def GetDeviceInfo():
     angle_value = dev.AngleValue
     print(f"AngleValue: {angle_value}")
 
-    # Get_Device_Count is a Function that is used to get the USB Device count. It also assigns a 
-    # value representing the DeviceStatus of the USB Device. 
+    # Get_Device_Count is a Function that is used to get the USB Device count. It also assigns a
+    # value representing the DeviceStatus of the USB Device.
     dev_count = dev.Get_Device_Count()
     print(f"Devices connected: {dev_count}")
     # The device status is an int. "Codes Overview.pdf" specifies the meaning of each possible code.
     dev_status = dev.DeviceStatus
     print(f"Device Status: {dev_status}")
 
-    # Get_Device_Serial_Number is a Function that is used to get the USB Device Serial Number. It 
-    # also assigns a value representing the DeviceStatus of the USB Device. 
+    # Get_Device_Serial_Number is a Function that is used to get the USB Device Serial Number. It
+    # also assigns a value representing the DeviceStatus of the USB Device.
     # TODO Understand what should be the value of index to get a correct response
     index = 1
     serial = dev.Get_Device_Serial_Number(str(index))
@@ -163,21 +169,20 @@ def GetDeviceInfo():
         dev_status = dev.DeviceStatus
         print(f"Device Status: {dev_status}")
 
-
-    # Get_Type_of_Board is a Function that returns a value representing the Type of Board (FUTEK 
-    # Model Number) of the USB Device. Return Value = (05H to FFH); The Type of Board is an "Unknown 
-    # Type of Board" 
+    # Get_Type_of_Board is a Function that returns a value representing the Type of Board (FUTEK
+    # Model Number) of the USB Device. Return Value = (05H to FFH); The Type of Board is an "Unknown
+    # Type of Board"
     type = dev.Get_Type_of_Board(handle)
     print(f"Type of board: {type}")
-    # 
+    #
     # Get_Type_of_Board
     # Get_Hardware_Version
     # Get_Firmware_Version
     # Get_Firmware_Year
     # Get_Firmware_Month
 
-    
     Disconnect(dev)
+
 
 def GetDataLog():
     """
@@ -203,26 +208,74 @@ def GetDataLog():
     # Get_Internal_Register function
     # offset_d = dev.Get_Offset_Value(handle, channel)
     # print(f'{offset_d = }')
-    offset_d = int(dev.Get_Internal_Register(handle, '02'))
-    print(f'{offset_d = }')
+    offset_d = int(dev.Get_Internal_Register(handle, 0x02))
+    print(f"{offset_d = }")
 
     # fullscale_d = dev.Get_Fullscale_Value(handle, channel)
     # print(f'{fullscale_d = }')
-    fullscale_d = int(dev.Get_Internal_Register(handle, '03'))
-    print(f'{fullscale_d = }')
+    fullscale_d = int(dev.Get_Internal_Register(handle, 0x03))
+    print(f"{fullscale_d = }")
 
     # There is no function to get the fullscale offset value directly
-    reverse_fullscale_d = int(dev.Get_Internal_Register(handle, '04'))
-    print(f'{reverse_fullscale_d = }')
+    reverse_fullscale_d = int(dev.Get_Internal_Register(handle, 0x04))
+    print(f"{reverse_fullscale_d = }")
 
     # This value comes without the decimal point
-    fullscale_load_a = int(dev.Get_Internal_Register(handle, '05'))
-    print(f'{fullscale_load_a = }')
-    # fullscale_load_a = dev.Get_Fullscale_Load(handle)
-    # print(f'{fullscale_load_a = }')
+    fullscale_load_a = float(dev.Get_Internal_Register(handle, 0x05)) * 1E-3
+    print(f"{fullscale_load_a = }")
 
-    # Gets the data logging value stored in memory and assigns a value to the DataLogging_Counter, 
-    # DataLogging_Value1 and DataLogging_Value2.
+
+    # Gets the data logging value stored in memory and assigns a value to the 
+    # DataLogging_Counter, DataLogging_Value1 and DataLogging_Value2.
+    # There is no way to know the length of the data_logging. An auxiliary variable
+    # verifies whether the time interval between two samples is consistent
+    try:
+        # Gets the first and second samples to calculate the time delay
+        dev.Get_Data_Logging(handle, 0)
+        time_sample_1 = dev.DataLogging_Value2
+
+        dev.Get_Data_Logging(handle, 1)
+        time_sample_2 = dev.DataLogging_Value2
+
+        t_delta_base = time_sample_2 - time_sample_1
+    except:
+        print("Couldn't obtain data.")
+        return
+
+    # Check if the first time interval is good
+    if t_delta_base > 0:
+        valid_delta_t = True
+        print(f"t_delta_base: {t_delta_base} ms")
+    else:
+        valid_delta_t = False
+        print(f"The first data logging time interval was invalid: {t_delta_base} ms")
+        return
+
+    # Get all samples
+    sample_count = 0
+    while valid_delta_t:
+        dev.Get_Data_Logging(handle, sample_count)
+        torq_sample = dev.DataLogging_Value1
+        time_sample = dev.DataLogging_Value2
+        if sample_count < 2:
+            tim_vals.append(time_sample)
+            adc_vals.append(torq_sample)
+            sample_count +=1
+            continue
+
+        delta_t = time_sample - tim_vals[-1]
+        if (delta_t <= t_delta_base + 1) and (delta_t >= t_delta_base - 1):
+            # print(f"Valid time interval: {delta_t} ms")
+            tim_vals.append(time_sample)
+            adc_vals.append(torq_sample)
+            sample_count += 1
+        else:
+            # print(f"Invalid time interval: {delta_t}")
+            valid_delta_t = False
+        
+
+
+
 
     # ret_data_log = dev.Get_Data_Logging(handle, samples)
     # if ret_data_log != 0:
@@ -231,44 +284,47 @@ def GetDataLog():
     #     return
     # valid_delta_t = True
 
-
     # This while loop must check whether the time interval between two samples is valid
     # while valid_delta_t:
-    for counter in range(0, samples + 1):
-        dev.Get_Data_Logging(handle, counter)
-        # Gets a value indicating the count associated with the sample number recorded during data 
-        # logging. 
-        counter = dev.DataLogging_Counter
-        cnt_vals.append(counter)
-        # print(f"counter: {counter}")
-        # Gets a value indicating the analog-to-digital converter (ADC) value associated with the
-        # sample number recorded during data logging.
-        dl_v1 = dev.DataLogging_Value1
-        adc_vals.append(dl_v1)
-        # print(f"DataLogging_Value1: {dl_v1}")
-        # Gets a value indicating the elapsed time in milliseconds associated with the sample number 
-        # recorded during data logging. 
-        dl_v2 = dev.DataLogging_Value2
-        # print(f"DataLogging_Value2: {dl_v2}")
-        tim_vals.append(dl_v2)
-    
+    # for counter in range(0, samples + 1):
+    #     dev.Get_Data_Logging(handle, counter)
+    #     # Gets a value indicating the count associated with the sample number recorded 
+    #     # during data logging.
+    #     counter = dev.DataLogging_Counter
+    #     cnt_vals.append(counter)
+    #     # print(f"counter: {counter}")
+    #     # Gets a value indicating the analog-to-digital converter (ADC) value associated
+    #     # with the sample number recorded during data logging.
+    #     dl_v1 = dev.DataLogging_Value1
+    #     adc_vals.append(dl_v1)
+    #     # print(f"DataLogging_Value1: {dl_v1}")
+    #     # Gets a value indicating the elapsed time in milliseconds associated with the 
+    #     # sample number recorded during data logging.
+    #     dl_v2 = dev.DataLogging_Value2
+    #     # print(f"DataLogging_Value2: {dl_v2}")
+    #     tim_vals.append(dl_v2)
+
     # Get converted values:
-    tq_vals = DA_convert(adc_vals, offset_d, fullscale_d, reverse_fullscale_d, fullscale_load_a)
+    tq_vals = DA_convert(
+        adc_vals, offset_d, fullscale_d, reverse_fullscale_d, fullscale_load_a
+    )
     filename = "Test.dat"
-    cols = np.column_stack((cnt_vals, tim_vals, adc_vals, tq_vals))
-    format = ['%i', '%i', '%i', '%i']
-    header = f"Sample\tTime(ms)\tADC Count\tTorque (N.cm)"
+    cols = np.column_stack((tim_vals, adc_vals, tq_vals))
+    format = ["%i", "%i", "%f"]
+    header = f"Time(ms)\tADC Count\tTorque (N.cm)"
     delimiter = "\t"
     np.savetxt(filename, cols, fmt=format, header=header, delimiter=delimiter)
 
 
-def DA_convert(track_d_val, offset_d, fullscale_d, reverse_fullscale_d, fullscale_load_a):
+def DA_convert(
+    track_d_val, offset_d, fullscale_d, reverse_fullscale_d, fullscale_load_a
+):
     """
     Converts a digital value (or array) to a float value.
     variables with _d are digital, integer in the ADC range (16-bit usually)
     variables with _a are analog, float.
-    Inputs: 
-    track_d_val: Measurement, named "Tracking ADC Value" by FUTEK's software. 
+    Inputs:
+    track_d_val: Measurement, named "Tracking ADC Value" by FUTEK's software.
                  Corresponds to the measured ADC value, integer.
     offset_d: Offset of the ADC circuit, corresponds to the zero of analog range.
     fullscale_d: ADC value corresponding to fullscale_load_a
@@ -282,16 +338,19 @@ def DA_convert(track_d_val, offset_d, fullscale_d, reverse_fullscale_d, fullscal
     where:
         fs = fullscale_d if track_d_val-offset > 0
         fs = reverse_fullscale_d if track_d_val-offset < 0
-    
+
     """
-    track_d = fullscale_load_a * (track_d_val - offset_d)
-    if track_d > 0:
-        output = track_d / (fullscale_d - offset_d)
-    else:
-        output = track_d / (reverse_fullscale_d - offset_d)
+    output = np.zeros(len(track_d_val), dtype=np.float64)
+    track_d = fullscale_load_a * (np.asarray(track_d_val, dtype=np.float64) - offset_d)
+    for i, val in enumerate(track_d):
+        if val > 0:
+            output[i] = val / (fullscale_d - offset_d)
+        else:
+            output[i] = val / (offset_d - reverse_fullscale_d)
     return output
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # ConnectDisconnect()
     # GetSingleData()
     # GetDeviceInfo()
