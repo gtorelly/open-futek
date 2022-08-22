@@ -196,9 +196,9 @@ def GetDataLog():
     handle = dev.DeviceHandle
     channel = 2
     # Measurement definitions
-    seconds = 21
-    data_logging_rate = 50  # Hz - This is the full logging data rate
-    samples = seconds * data_logging_rate
+    # seconds = 21
+    # data_logging_rate = 50  # Hz - This is the full logging data rate
+    # samples = seconds * data_logging_rate
 
     cnt_vals = []
     adc_vals = []
