@@ -428,6 +428,16 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>ihh_serial_line</tabstop>
+  <tabstop>connect_btn</tabstop>
+  <tabstop>disconnect_btn</tabstop>
+  <tabstop>get_data_btn</tabstop>
+  <tabstop>output_folder_line</tabstop>
+  <tabstop>output_folder_btn</tabstop>
+  <tabstop>file_name_line</tabstop>
+  <tabstop>save_btn</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
